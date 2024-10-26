@@ -8,7 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { Product } from './product.interface';
+import { Product } from './product.entity';
 
 @Controller('products')
 export class ProductsController {
@@ -16,27 +16,30 @@ export class ProductsController {
 
   // get all products
   @Get()
-  getAllProducts(): Product[] {
-    return this.productsService.getAllProducts();
+  async getAllProducts(): Promise<Product[]> {
+    return await this.productsService.getAllProducts();
   }
 
   @Get(':id')
-  getProductById(@Param('id') id: string): Product {
-    return this.productsService.getProductById(+id);
+  async getProductById(@Param('id') id: string): Promise<Product> {
+    return await this.productsService.getProductById(+id);
   }
 
   @Post()
-  createProduct(@Body() product: Product): Product {
-    return this.productsService.createProduct(product);
+  async createProduct(@Body() product: Product): Promise<Product> {
+    return await this.productsService.createProduct(product);
   }
 
   @Put(':id')
-  updateProduct(@Param('id') id: string, @Body() product: Product): Product {
-    return this.productsService.updateProduct(+id, product);
+  async updateProduct(
+    @Param('id') id: string,
+    @Body() product: Product,
+  ): Promise<Product> {
+    return await this.productsService.updateProduct(+id, product);
   }
 
   @Delete(':id')
-  deleteProduct(@Param('id') id: string): void {
-    return this.productsService.deleteProduct(+id);
+  async deleteProduct(@Param('id') id: string): Promise<void> {
+    return await this.productsService.deleteProduct(+id);
   }
 }

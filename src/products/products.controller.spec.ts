@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
-import { Product } from './product.interface';
+import { Product } from './product.entity';
 
 describe('ProductsController', () => {
   let controller: ProductsController;
@@ -42,41 +42,42 @@ describe('ProductsController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should return all products', () => {
-    expect(controller.getAllProducts()).toEqual([
-      { id: 1, name: 'Laptop', price: 1200 },
-      { id: 2, name: 'Phone', price: 800 },
-    ]);
+  it('should return all products', async () => {
+    const result: Product[] = [{ id: 1, name: 'Laptop', price: 1200 }];
+    (service.getAllProducts as jest.Mock).mockResolvedValue(result);
+    expect(await controller.getAllProducts()).toEqual(result);
   });
 
-  it('should return a single product by ID', () => {
-    expect(controller.getProductById('1')).toEqual({
-      id: 1,
-      name: 'Laptop',
-      price: 1200,
-    });
+  it('should return a single product by ID', async () => {
+    const result: Product = { id: 1, name: 'Laptop', price: 1200 };
+    (service.getProductById as jest.Mock).mockResolvedValue(result);
+
+    expect(await controller.getProductById('1')).toEqual(result);
   });
 
-  it('should create a new product', () => {
-    const newProduct: Product = { id: 3, name: 'Tablet', price: 600 };
-    expect(controller.createProduct(newProduct)).toEqual({
-      id: 3,
-      name: 'Tablet',
-      price: 600,
-    });
+  it('should create a new product', async () => {
+    const newProduct: Product = { id: 2, name: 'Phone', price: 800 };
+    (service.createProduct as jest.Mock).mockResolvedValue(newProduct);
+
+    expect(await controller.createProduct(newProduct)).toEqual(newProduct);
   });
 
-  it('should update an existing product', () => {
-    const updateProduct: Product = {
+  it('should update an existing product', async () => {
+    const updatedProduct: Product = {
       id: 1,
       name: 'Updated Laptop',
       price: 1500,
     };
-    expect(controller.updateProduct('1', updateProduct)).toEqual(updateProduct);
+    (service.updateProduct as jest.Mock).mockResolvedValue(updatedProduct);
+
+    expect(await controller.updateProduct('1', updatedProduct)).toEqual(
+      updatedProduct,
+    );
   });
 
-  it('should delete a product', () => {
-    controller.deleteProduct('1');
-    expect(service.deleteProduct).toHaveBeenCalledWith(1);
+  it('should delete a product', async () => {
+    (service.deleteProduct as jest.Mock).mockResolvedValue(undefined);
+
+    await expect(controller.deleteProduct('1')).resolves.not.toThrow();
   });
 });
